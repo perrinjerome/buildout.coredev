@@ -5,6 +5,7 @@ on: push
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         python-version:
         - "3.8"
@@ -21,6 +22,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
+    - uses: browser-actions/setup-geckodriver@latest
+    - uses: abhi1693/setup-browser@v0.3.4
+      with:
+        browser: firefox
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
@@ -48,3 +53,11 @@ jobs:
       if: matrix.os != 'macos-latest'
       run: |
         buildout buildout:git-clone-depth=1
+    #- name: Run tests
+    #  if: matrix.os != 'macos-latest'
+    #  run: |
+    #    bin/test
+    - name: Run robot tests
+      if: matrix.os != 'macos-latest'
+      run: |
+        bin/test -t robot --all --xml
